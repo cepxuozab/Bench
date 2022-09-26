@@ -2,6 +2,28 @@
 
 #include <ranges>
 #include <vector>
+#include <iostream>
+#include <string>
+
+using namespace std::string_literals;
+
+void ConstChar(benchmark::State& state) {
+	std::string created_string;
+	std::string const added = "hello"s;
+	for (auto _ : state) {
+		created_string += added;
+		// Make sure the variable is not optimized away by compiler
+		benchmark::DoNotOptimize(created_string);
+	}
+}
+void String(benchmark::State& state) {
+	std::string x;
+	const char* added{ "hello" };
+	for (auto _ : state) {
+		x += added;
+		benchmark::DoNotOptimize(x);
+	}
+}
 
 using namespace std::ranges;
 
@@ -34,9 +56,9 @@ void linear_search_in_sorted_vector(benchmark::State &state) {
   }
 }
 
-BENCHMARK(linear_search_in_sorted_vector);
-BENCHMARK(binary_search_in_sorted_vector);
-
 }  // namespace
+BENCHMARK(ConstChar);
+BENCHMARK(String);
+
 
 BENCHMARK_MAIN();
